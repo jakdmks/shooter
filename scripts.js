@@ -59,8 +59,30 @@ document.querySelectorAll('.screen').forEach(screen => {
 		xMark.classList.add('x-mark');
 		xMark.style.left = `${x - 10}px`; // center the X
 		xMark.style.top = `${y - 10}px`;
+		
+		const muzzleFlash = document.createElement('div');
+		muzzleFlash.classList.add('muzzle-flash');
+		muzzleFlash.style.left = `${x - 18}px`; // center the X
+		muzzleFlash.style.top = `${y - 18}px`;
 
 		screen.appendChild(xMark);
+		screen.appendChild(muzzleFlash);
+		
+		  const numBlocks = 6; // number of blocks for detail
+
+		  for (let i = 0; i < numBlocks; i++) {
+			const block = document.createElement('div');
+			block.classList.add('flash-block');
+
+			// Always above center: dy is negative
+			const dy = -30 - Math.random() * 20;  // 30-50px upward
+			const dx = Math.random() * 40 - 20;   // -20px to +20px left/right
+			block.style.setProperty('--dx', `${dx}px`);
+			block.style.setProperty('--dy', `${dy}px`);
+
+			muzzleFlash.appendChild(block);
+		  }
+		
 		updateStatsDiv();
 		
 		if (statsTargetsRemaining === 0) {
