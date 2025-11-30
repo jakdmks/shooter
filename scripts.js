@@ -2,6 +2,14 @@ function testing() {
 	console.info("Hello World...");
 }
 
+var gun = {
+	"gunModel": "USPS",
+	"bulletsPerClip": 12,
+	"bulletsInCurrentClip": 12,
+	"bulletsTotal": 24,
+	"bulletsTotalRemaining": 24
+}
+
 var statsTargetsTotal = 0;
 var statsTargetsDestroyed = 0;
 var statsTargetsRemaining = 0;
@@ -39,57 +47,85 @@ document.querySelectorAll('.screen').forEach(screen => {
 	
 	if (statsTargetsTotal > 0) {
 		
-		//SFX
-		const audio = new Audio("sounds/gunshot-01.mp3");
-		audio.volume = 0.2;
-		audio.play();
-		
-		screen.classList.add('flash');         // make it white
-		statsShots++;
-		
-		setTimeout(() => {
-			screen.classList.remove('flash');    // revert back quickly
-		}, 100); // flash duration in ms
+		if (gun.bulletsInCurrentClip === 1) {
+			//Update ammo counts and such
+			gun.bulletsInCurrentClip--;
+			gun.bulletsTotalRemaining--;
+			renderInfoAmmo();
 			
-		const rect = screen.getBoundingClientRect();
-		const x = event.clientX - rect.left;
-		const y = event.clientY - rect.top;
+			showReloadOverlay();
+		}
 		
-		const xMark = document.createElement('div');
-		xMark.classList.add('x-mark');
-		xMark.style.left = `${x - 10}px`; // center the X
-		xMark.style.top = `${y - 10}px`;
-		
-		const muzzleFlash = document.createElement('div');
-		muzzleFlash.classList.add('muzzle-flash');
-		muzzleFlash.style.left = `${x - 18}px`; // center the X
-		muzzleFlash.style.top = `${y - 18}px`;
-
-		screen.appendChild(xMark);
-		screen.appendChild(muzzleFlash);
-		
-		  const numBlocks = 6; // number of blocks for detail
-
-		  for (let i = 0; i < numBlocks; i++) {
-			const block = document.createElement('div');
-			block.classList.add('flash-block');
-
-			// Always above center: dy is negative
-			const dy = -30 - Math.random() * 20;  // 30-50px upward
-			const dx = Math.random() * 40 - 20;   // -20px to +20px left/right
-			block.style.setProperty('--dx', `${dx}px`);
-			block.style.setProperty('--dy', `${dy}px`);
-
-			muzzleFlash.appendChild(block);
-		  }
-		
-		updateStatsDiv();
-		
-		if (statsTargetsRemaining === 0) {
-			stopTimer();
+		if (gun.bulletsInCurrentClip > 1) {
+			hideReloadOverlay();
 			
-			statsTargetsTotal = 0;
-			showOverlay();
+			//SFX
+			// const audio = new Audio("sounds/gunshot-01.mp3");
+			// audio.volume = 0.2;
+			// audio.play();
+			
+			screen.classList.add('flash');         // make it white
+			statsShots++;
+			
+			setTimeout(() => {
+				screen.classList.remove('flash');    // revert back quickly
+			}, 100); // flash duration in ms
+				
+			const rect = screen.getBoundingClientRect();
+			const x = event.clientX - rect.left;
+			const y = event.clientY - rect.top;
+			
+			const xMark = document.createElement('div');
+			xMark.classList.add('x-mark');
+			xMark.style.left = `${x - 10}px`; // center the X
+			xMark.style.top = `${y - 10}px`;
+			
+			const muzzleFlash = document.createElement('div');
+			muzzleFlash.classList.add('muzzle-flash');
+			muzzleFlash.style.left = `${x - 18}px`; // center the X
+			muzzleFlash.style.top = `${y - 18}px`;
+
+			screen.appendChild(xMark);
+			screen.appendChild(muzzleFlash);
+			
+			  const numBlocks = 6; // number of blocks for detail
+
+			  for (let i = 0; i < numBlocks; i++) {
+				const block = document.createElement('div');
+				block.classList.add('flash-block');
+
+				// Always above center: dy is negative
+				const dy = -30 - Math.random() * 20;  // 30-50px upward
+				const dx = Math.random() * 40 - 20;   // -20px to +20px left/right
+				block.style.setProperty('--dx', `${dx}px`);
+				block.style.setProperty('--dy', `${dy}px`);
+
+				muzzleFlash.appendChild(block);
+			  }
+			
+			//Update ammo counts and such
+			gun.bulletsInCurrentClip--;
+			gun.bulletsTotalRemaining--;
+			
+			//Screen ammo info
+			renderInfoAmmo();
+			
+			//Visibility of reload button
+			divReloadButton = document.getElementById("reload-button");
+			if (gun.bulletsInCurrentClip < gun.bulletsPerClip && gun.bulletsInCurrentClip < gun.bulletsTotalRemaining) {
+				divReloadButton.style.visibility = "visible";
+			} else {
+				divReloadButton.style.visibility = "hidden";
+			}
+			
+			updateStatsDiv();
+			
+			if (statsTargetsRemaining === 0) {
+				stopTimer();
+				
+				statsTargetsTotal = 0;
+				showOverlay();
+			}
 		}
 	}
   });
@@ -100,15 +136,17 @@ function newRandomGame() {
 	console.info("Starting new random game...");
 	
 	//SFX
-	const audio = new Audio("sounds/success-01.mp3");
-	audio.volume = 0.2;
-	audio.play();
+	// const audio = new Audio("sounds/success-01.mp3");
+	// audio.volume = 0.2;
+	// audio.play();
 	
 	statsShots = 0;
 	statsHits = 0;
 	statsAccuracy = 0;
 	
-	plotObjects('screen', 10, 80);
+	renderInfoAmmo();
+	
+	plotObjects('screen', 15, 100);
 	
 	startTimer();
 	updateStatsDiv();
@@ -208,33 +246,30 @@ function plotObjects(containerId, objectCount, objectSize) {
 
     const positions = generateRandomObjects(width, height, objectCount, objectSize);
 
-    positions.forEach((pos, index) => {
-        const div = document.createElement('div');
-        const id = `target-${String(index + 1).padStart(3, '0')}`;
-        div.id = id;
-        div.className = "enemy flash-circle sway-bounce";
-        div.style.position = 'absolute';
-        div.style.left = pos.x + 'px';
-        div.style.top = pos.y + 'px';
-        div.style.width = objectSize + 'px';
-        div.style.height = objectSize + 'px';
-        div.style.display = 'flex';
-        div.style.alignItems = 'center';
-        div.style.justifyContent = 'center';
-        div.style.background = 'red';
-        div.style.borderRadius = '50%';
-        div.style.color = '#fff';
-        //div.innerText = String(index + 1).padStart(3, '0');
-		div.innerText = 'o_o';
+	positions.forEach((pos, index) => {
+		setTimeout(() => {
+			const div = document.createElement('div');
+			const id = `target-${String(index + 1).padStart(3, '0')}`;
+			div.id = id;
+			div.className = "enemy flash-circle sway-bounce";
+			div.style.position = 'absolute';
+			div.style.left = pos.x + 'px';
+			div.style.top = pos.y + 'px';
+			div.style.width = objectSize + 'px';
+			div.style.height = objectSize + 'px';
+			div.style.display = 'flex';
+			div.style.alignItems = 'center';
+			div.style.justifyContent = 'center';
+			div.style.background = 'red';
+			div.style.borderRadius = '50%';
+			div.style.color = '#fff';
+			div.innerText = 'o_o';
 
-        // Example destroy function
-        div.onclick = () => {
-            //container.removeChild(div);
-			destroy(div.id);
-        };
+			div.onclick = () => destroy(div.id);
 
-        container.appendChild(div);
-    });
+			container.appendChild(div);
+		}, index * 100);  // ← controls the delay (100ms per object)
+	});
 	
 	statsTargetsTotal = objectCount;
 	statsTargetsDestroyed = 0;
@@ -245,11 +280,63 @@ function showOverlay() {
     document.getElementById("endgame-overlay").style.display = "flex";
 	
 	//SFX
-	const audio = new Audio("sounds/clapping-01.mp3");
-	audio.volume = 0.2;
-	audio.play();
+	// const audio = new Audio("sounds/clapping-01.mp3");
+	// audio.volume = 0.2;
+	// audio.play();
 }
 
 function closeOverlay() {
     document.getElementById("endgame-overlay").style.display = "none";
+}
+
+function showReloadOverlay() {
+    document.getElementById('reload-overlay').style.display = "flex";
+}
+
+function hideReloadOverlay() {
+    document.getElementById('reload-overlay').style.display = "none";
+}
+
+function reload() {
+	
+	//Visibility of reload button
+	divReloadButton = document.getElementById("reload-button");
+	
+	if (gun.bulletsTotalRemaining === 0) {
+		divReloadButton.style.visibility = "hidden";
+	} else if (gun.bulletsInCurrentClip >= gun.bulletsTotalRemaining) {
+		divReloadButton.style.visibility = "hidden";
+	} else if (gun.bulletsTotalRemaining > 0 && gun.bulletsTotalRemaining >= gun.bulletsPerClip) {
+		gun.bulletsInCurrentClip = gun.bulletsPerClip;
+		divReloadButton.style.visibility = "hidden";
+		hideReloadOverlay();
+	} else if (gun.bulletsTotalRemaining > 0 && gun.bulletsTotalRemaining < gun.bulletsPerClip) {
+		gun.bulletsInCurrentClip = gun.bulletsTotalRemaining
+		divReloadButton.style.visibility = "hidden";
+		hideReloadOverlay();
+	} else {
+		//Do nothing?
+	}
+	
+	//Screen ammo info
+	renderInfoAmmo();
+}
+
+function renderInfoAmmo() {
+	divInfoAmmo = document.getElementById("info-ammo");
+	divInfoAmmo.innerHTML = gun.bulletsInCurrentClip + " / " + (gun.bulletsTotalRemaining - gun.bulletsInCurrentClip);
+	
+	divInfoBullets = document.getElementById("info-bullets");
+	
+	var infoBulletsText = "";
+	
+	if (gun.bulletsInCurrentClip > 0) {
+		for (var x = 0; x < gun.bulletsInCurrentClip; x++) {
+			console.info("#2");
+			infoBulletsText = infoBulletsText + "[] ";
+		}
+	}
+	console.info("infoBulletsText", infoBulletsText);
+	
+	divInfoBullets.innerHTML = infoBulletsText;
 }
