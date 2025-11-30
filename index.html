@@ -12,9 +12,6 @@
 	<div id="new-game-button-random" class="button green" onclick="newRandomGame()">NEW GAME!</div>
   
 	<div id="screen" class="screen">
-	
-	
-	
 		<!-- Overlay for end-game stats -->
 		<div id="endgame-overlay">
 			<div id="stats-panel">
@@ -35,7 +32,18 @@
 					</div>
 			</div>
 		</div>
+		
+		<!-- Overlay for reload -->
+		<div id="reload-overlay">
+			RELOAD!
+		</div>
+		
 	</div>
+	
+	<div class="info" style="font-weight: bold" id="info-ammo"></div>
+	<div class="info" id="info-bullets"></div>
+	<div id="reload-button" class="button red" onclick="reload()" style="margin-top: 5px; visibility: hidden">RELOAD!</div>
+	
   </body>
   <script src="scripts.js"></script>
 </html>
