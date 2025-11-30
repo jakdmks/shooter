@@ -20,6 +20,12 @@ body {
 	font-size: 32px;
 }
 
+.button.red {
+	color: white;
+	background-color: red;
+	font-size: 32px;
+}
+
 /* Default green crosshair (black outline) */
 .screen {
   cursor: url("data:image/svg+xml;utf8,\
@@ -237,6 +243,26 @@ body {
 	display: none;
 }
 
+#reload-overlay {
+  display: none; /* Hidden by default */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6); /* Semi-transparent background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  color: white;
+  font-size: 78px;
+  font-weight: bold;
+}
+#reload-overlay {
+	display: none;
+}
+
 /* Muzzle flash */
 .muzzle-flash {
   position: absolute;
@@ -267,4 +293,9 @@ body {
     transform: translate(var(--dx), var(--dy)) scale(0);
     opacity: 0;
   }
+}
+
+.info {
+	font-size: 24px;
+	color: yellow;
 }
