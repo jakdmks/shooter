@@ -146,7 +146,7 @@ function newRandomGame() {
 	
 	renderInfoAmmo();
 	
-	plotObjects('screen', 15, 100);
+	plotObjects('screen', 10, 80);
 	
 	startTimer();
 	updateStatsDiv();
