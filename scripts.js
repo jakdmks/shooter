@@ -2,13 +2,15 @@ function testing() {
 	console.info("Hello World...");
 }
 
-var gun = {
+var defaultGun = {
 	"gunModel": "USPS",
 	"bulletsPerClip": 12,
 	"bulletsInCurrentClip": 12,
 	"bulletsTotal": 24,
 	"bulletsTotalRemaining": 24
 }
+
+var gun = JSON.parse(JSON.stringify(defaultGun));
 
 var statsTargetsTotal = 0;
 var statsTargetsDestroyed = 0;
@@ -143,6 +145,8 @@ function newRandomGame() {
 	statsShots = 0;
 	statsHits = 0;
 	statsAccuracy = 0;
+	
+	gun = JSON.parse(JSON.stringify(defaultGun));
 	
 	renderInfoAmmo();
 	
