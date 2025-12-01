@@ -128,6 +128,13 @@ document.querySelectorAll('.screen').forEach(screen => {
 				statsTargetsTotal = 0;
 				showOverlay();
 			}
+		} else if (gun.bulletsTotalRemaining === 0) {
+			
+			console.info("OUT OF AMMO! (Display overlay...)");
+			
+			divNewGameButtonRandom = document.getElementById("new-game-button-random");
+			divNewGameButtonRandom.style.visibility = "visible";
+			hideReloadOverlay();
 		}
 	}
   });
